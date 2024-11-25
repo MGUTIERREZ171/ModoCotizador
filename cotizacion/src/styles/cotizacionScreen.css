@@ -1,0 +1,48 @@
+.d-flex {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: space-between;
+}
+
+.input-item {
+    display: flex;
+    flex-direction: column;
+    width: calc(33.33% - 1rem); /* Ajusta el ancho para tres columnas */
+}
+
+.input-label {
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
+
+.form-control {
+    width: 100%;
+}
+
+.custom-buttons {
+    margin-top: 20px; /* Ajusta la separación desde arriba */
+    margin-right: 223px;
+    gap: 10px; /* Ajusta el espacio entre botones */
+}
+
+.btn-custom {
+    background-color: #170250;
+    color: white; /* Asegúrate de que el texto sea visible */
+    border: none; /* Opcional: elimina el borde */
+}
+
+.btn-search {
+    background-color: #170250;
+    color: white; /* Asegúrate de que el texto sea visible */
+    border: none; /* Opcional: elimina el borde */
+    margin-top: 20px; /* Ajusta la separación desde arriba */
+    margin-right: 15px;
+   vertical-align: middle;
+  
+}
+
+.custom-navbar {
+    background-color: #130244; /* Cambia este color según tu preferencia */
+    color: white; /* Color del texto */
+}
