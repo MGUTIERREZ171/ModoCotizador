@@ -368,9 +368,9 @@ export const CotizacionScreen = ({ obtenerCreditos }) => {
                     position: 'center',
                     icon: 'success',
                     title: 'Abonos actualizados correctamente',
-                    showConfirmButton: false,
-                    timer: 1500
+                    showConfirmButton: true,
                 });
+                LimpiarInputs();
             } else {
                 const errorData = await response.json();
                 Swal.fire('Error', errorData.message || 'Error al actualizar los abonos.', 'error');
@@ -429,7 +429,7 @@ export const CotizacionScreen = ({ obtenerCreditos }) => {
                                     inputRef={ncreditoRef}
                                     error={errors.ncredito}
                                     fullWidth
-                                    disabled={isReadonly}
+                                // disabled={isReadonly}
                                 />
                                 {errors.ncredito && <FormHelperText sx={{ color: 'red' }}>Campo Obligatorio</FormHelperText>}
                             </FormControl>
@@ -448,7 +448,7 @@ export const CotizacionScreen = ({ obtenerCreditos }) => {
                                     sx={{ width: '330px', backgroundColor: '#FFFF' }}
                                     inputRef={clienteRef} // Referencia para cliente
                                     error={errors.cliente}
-                                    disabled={isReadonly}  // Deshabilita el campo si es de solo lectura
+                                    disabled  // Deshabilita el campo si es de solo lectura
                                 // helperText={errors.cliente ? "Campo Obligatorio" : ""}
                                 // fullWidth
                                 />
@@ -469,7 +469,7 @@ export const CotizacionScreen = ({ obtenerCreditos }) => {
                                     sx={{ width: '120px', backgroundColor: '#FFFF' }}
                                     inputRef={montoRef} // Referencia para cliente
                                     error={errors.cantidadAutorizada}
-                                    disabled={isReadonly}  // Deshabilita el campo si es de solo lectura
+                                    disabled  // Deshabilita el campo si es de solo lectura
                                 // helperText={errors.meses ? "Campo Obligatorio" : ""}
                                 // fullWidth
                                 />
@@ -493,7 +493,7 @@ export const CotizacionScreen = ({ obtenerCreditos }) => {
                                     sx={{ width: '120px', backgroundColor: '#FFFF' }}
                                     inputRef={mesesRef}
                                     error={errors.meses}
-                                // disabled={isReadonly}  // Deshabilita el campo si es de solo lectura
+                                    disabled={!isReadonly}  // Deshabilita el campo si es de solo lectura
                                 >
                                     {[...Array(12)].map((_, i) => (
                                         <MenuItem key={i + 1} value={i + 1}>{i + 1}</MenuItem>
@@ -518,6 +518,7 @@ export const CotizacionScreen = ({ obtenerCreditos }) => {
                                     inputRef={interesRef}
                                     error={errors.interes}
                                     fullWidth
+                                    disabled={!isReadonly}
                                     InputProps={{
                                         readOnly: !isInteresEditable,
                                     }}
@@ -539,7 +540,7 @@ export const CotizacionScreen = ({ obtenerCreditos }) => {
                                     }}
                                     label="Fecha de Préstamo"
                                     format="DD/MM/YYYY"
-                                    disabled={isReadonly}  // Deshabilita el campo si es de solo lectura
+                                    disabled  // Deshabilita el campo si es de solo lectura
                                     // minDate={dayjs()}
                                     sx={{
                                         width: '195px',
@@ -604,6 +605,10 @@ export const CotizacionScreen = ({ obtenerCreditos }) => {
                         <i className="fa-solid fa-print"></i>
                         <span> Imprimir</span>
                     </button>
+                    <button type="button" className="btn btn-custom-act m " onClick={() => actualizarAbonos(ncredito, pagos)}>
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        <span> Actualizar</span>
+                    </button>
                 </div>
 
                 <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'center' }}>
@@ -650,12 +655,7 @@ export const CotizacionScreen = ({ obtenerCreditos }) => {
                     </Paper>
 
                 </div>
-                <div className="d-flex justify-content-end align-items-center custom-buttons mt-3">
-                    <button type="button" className="btn btn-custom m " onClick={() => actualizarAbonos(ncredito, pagos)}>
-                        <i class="fa-solid fa-floppy-disk"></i>
-                        <span> Actualizar</span>
-                    </button>
-                </div>
+
 
             </div >
         </>

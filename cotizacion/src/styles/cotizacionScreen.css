@@ -32,6 +32,12 @@
     border: none; /* Opcional: elimina el borde */
 }
 
+.btn-custom-act {
+    background-color: #481ac4;
+    color: white; /* Asegúrate de que el texto sea visible */
+    border: none; /* Opcional: elimina el borde */
+}
+
 .btn-search {
     background-color: #170250;
     color: white; /* Asegúrate de que el texto sea visible */

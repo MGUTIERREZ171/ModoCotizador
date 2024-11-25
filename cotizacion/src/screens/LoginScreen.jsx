@@ -39,7 +39,7 @@ export const LoginScreen = () => {
                 console.log(data.id);
 
                 setTimeout(() => {
-                    navigate('/creditosrutas'); // Redirigir a la página de créditos
+                    navigate('/modocotizador'); // Redirigir a la página de créditos
                 }, 800);
 
             } else {

@@ -25,7 +25,7 @@ export const AppRouter = () => {
 
                     {/* Rutas privadas */}
                     <Route element={<PrivateRoutes />}>
-                        <Route path="/creditosrutas" element={<CreditoRutas />} />
+                        <Route path="/modocotizador" element={<CreditoRutas />} />
                     </Route>
                 </Routes>
             </motion.div>
