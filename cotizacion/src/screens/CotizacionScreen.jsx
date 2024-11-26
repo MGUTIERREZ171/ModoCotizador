@@ -408,9 +408,9 @@ export const CotizacionScreen = ({ obtenerCreditos }) => {
             </div>
 
 
-            <div style={{ backgroundColor: '#f0f0f0', minHeight: '100vh', padding: '20px' }}>
+            <div style={{ backgroundColor: '#f0f0f0', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', minHeight: '100vh', padding: '20px' }}>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <div style={{ display: 'flex', justifyContent: 'center', padding: '20px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'center', padding: '20px', flexWrap: 'wrap', gap: '16px', width: '100%', }}>
                         <div style={{ display: 'flex', gap: '16px', maxWidth: '100%', flexWrap: 'wrap' }}>
                             <FormControl>
                                 <TextField
@@ -434,7 +434,18 @@ export const CotizacionScreen = ({ obtenerCreditos }) => {
                                 {errors.ncredito && <FormHelperText sx={{ color: 'red' }}>Campo Obligatorio</FormHelperText>}
                             </FormControl>
 
-                            <button type="button" className="btn btn-search m" onClick={handleObtenerCredito}>
+                            <button type="button" className="btn btn-search m" onClick={handleObtenerCredito} style={{
+                                width: '30px', // Ajusta el tamaño fijo para que no cambie
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                padding: '8px',
+                                backgroundColor: '#170250',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '4px',
+                                height: 'fit-content',
+                            }}>
                                 <i class="fa-solid fa-magnifying-glass"></i>
                             </button>
 
@@ -590,73 +601,87 @@ export const CotizacionScreen = ({ obtenerCreditos }) => {
                         </div>
                     </div>
                 </LocalizationProvider >
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '20px',
+                    }}
+                >
+                    <div className="d-flex justify-content-end align-items-center custom-buttons mt-1" style={{
+                        display: 'flex',
+                        gap: '12px',
+                        flexWrap: 'wrap',
+                        justifyContent: 'center',
+                        width: '100%',
+                        maxWidth: '1200px',
+                    }}>
+                        <button type="button" className="btn btn-custom m " onClick={onSubmit}>
+                            <i className="fa-solid fa-check"></i>
+                            <span> Calcular</span>
+                        </button>
+                        <button type="button" className="btn btn-custom m " onClick={crearPDF}>
+                            <i className="fa-solid fa-print"></i>
+                            <span> Imprimir</span>
+                        </button>
+                        <button type="button" className="btn btn-custom m" onClick={LimpiarInputs} >
+                            <i className="fa-solid fa-rotate-right"></i>
+                            <span> Limpiar</span>
+                        </button>
+                        <button type="button" className="btn btn-custom-act m " onClick={() => actualizarAbonos(ncredito, pagos)}>
+                            <i class="fa-solid fa-floppy-disk"></i>
+                            <span> Actualizar</span>
+                        </button>
+                    </div>
 
-                <div className="d-flex justify-content-end align-items-center custom-buttons mt-1">
-                    <button type="button" className="btn btn-custom m " onClick={onSubmit}>
-                        <i className="fa-solid fa-check"></i>
-                        <span> Calcular</span>
-                    </button>
-                    <button type="button" className="btn btn-custom m" onClick={LimpiarInputs} >
-                        <i className="fa-solid fa-rotate-right"></i>
-                        <span> Limpiar</span>
-                    </button>
-
-                    <button type="button" className="btn btn-custom m " onClick={crearPDF}>
-                        <i className="fa-solid fa-print"></i>
-                        <span> Imprimir</span>
-                    </button>
-                    <button type="button" className="btn btn-custom-act m " onClick={() => actualizarAbonos(ncredito, pagos)}>
-                        <i class="fa-solid fa-floppy-disk"></i>
-                        <span> Actualizar</span>
-                    </button>
-                </div>
-
-                <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'center' }}>
-                    <Paper sx={{ width: '90%', maxWidth: 1400 }}>
-                        <TableContainer sx={{ maxHeight: 600 }}>
-                            <Table stickyHeader aria-label="sticky table">
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell align='center' sx={{ fontWeight: 'bold', backgroundColor: '#170250', color: 'white', padding: '8px', borderRight: '1px solid white' }}>N.PAGO</TableCell>
-                                        <TableCell align='center' sx={{ fontWeight: 'bold', backgroundColor: '#170250', color: 'white', padding: '8px', borderRight: '1px solid white' }}>FECHA</TableCell>
-                                        <TableCell align='center' sx={{ fontWeight: 'bold', backgroundColor: '#170250', color: 'white', padding: '8px', borderRight: '1px solid white' }}>IMPORTE</TableCell>
-                                        <TableCell align='center' sx={{ fontWeight: 'bold', backgroundColor: '#170250', color: 'white', padding: '8px', borderRight: '1px solid white' }}>SALDO ACTUAL</TableCell>
-                                        <TableCell align='center' sx={{ fontWeight: 'bold', backgroundColor: '#170250', color: 'white', padding: '8px', borderRight: '1px solid white' }}>VENCIDO</TableCell>
-                                        <TableCell align='center' sx={{ fontWeight: 'bold', backgroundColor: '#170250', color: 'white', padding: '8px' }}>STATUS</TableCell>
-                                    </TableRow>
-
-                                </TableHead>
-                                <TableBody>
-                                    {pagos.map((pago, index) => (
-                                        <TableRow
-                                            key={index}
-                                            sx={{
-                                                backgroundColor: index % 2 === 0 ? '#f5f5f5' : 'white',
-                                                '&:hover': { backgroundColor: '#e0e0e0' }
-                                            }}
-                                        >
-                                            <TableCell align='right' sx={{ padding: '8px', borderRight: '1px solid #f0f0f0' }}>{pago.npago}</TableCell>
-                                            <TableCell align='right' sx={{ padding: '8px', borderRight: '1px solid #f0f0f0' }}>{pago.fecha}</TableCell>
-                                            <TableCell align='right' sx={{ padding: '8px', borderRight: '1px solid #f0f0f0' }}>${parseFloat(pago.importe).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                                            <TableCell align='right' sx={{ padding: '8px', borderRight: '1px solid #f0f0f0' }}>${parseFloat(pago.saldoActual).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                                            <TableCell align='right' sx={{ padding: '8px', borderRight: '1px solid #f0f0f0' }}>${parseFloat(pago.vencido).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                                            <TableCell align='right' sx={{ padding: '8px' }}>{pago.status}</TableCell>
+                    <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'center', width: '100%', maxWidth: '1200px' }}>
+                        <Paper sx={{ width: '90%', maxWidth: 1400 }}>
+                            <TableContainer sx={{ maxHeight: 600 }}>
+                                <Table stickyHeader aria-label="sticky table">
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell align='center' sx={{ fontWeight: 'bold', backgroundColor: '#170250', color: 'white', padding: '8px', borderRight: '1px solid white' }}>N.PAGO</TableCell>
+                                            <TableCell align='center' sx={{ fontWeight: 'bold', backgroundColor: '#170250', color: 'white', padding: '8px', borderRight: '1px solid white' }}>FECHA</TableCell>
+                                            <TableCell align='center' sx={{ fontWeight: 'bold', backgroundColor: '#170250', color: 'white', padding: '8px', borderRight: '1px solid white' }}>IMPORTE</TableCell>
+                                            <TableCell align='center' sx={{ fontWeight: 'bold', backgroundColor: '#170250', color: 'white', padding: '8px', borderRight: '1px solid white' }}>SALDO ACTUAL</TableCell>
+                                            <TableCell align='center' sx={{ fontWeight: 'bold', backgroundColor: '#170250', color: 'white', padding: '8px', borderRight: '1px solid white' }}>VENCIDO</TableCell>
+                                            <TableCell align='center' sx={{ fontWeight: 'bold', backgroundColor: '#170250', color: 'white', padding: '8px' }}>STATUS</TableCell>
                                         </TableRow>
-                                    ))}
-                                    <TableRow>
-                                        <TableCell colSpan={4} align="right" sx={{ fontWeight: 'bold', paddingRight: '8px', fontSize: 20 }}>
-                                            {isNaN(montoTotal) || montoTotal === null || montoTotal === undefined ? '' : `Monto Total: $${parseFloat(montoTotal).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-                                        </TableCell>
-                                    </TableRow>
 
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
-                    </Paper>
+                                    </TableHead>
+                                    <TableBody>
+                                        {pagos.map((pago, index) => (
+                                            <TableRow
+                                                key={index}
+                                                sx={{
+                                                    backgroundColor: index % 2 === 0 ? '#f5f5f5' : 'white',
+                                                    '&:hover': { backgroundColor: '#e0e0e0' }
+                                                }}
+                                            >
+                                                <TableCell align='right' sx={{ padding: '8px', borderRight: '1px solid #f0f0f0' }}>{pago.npago}</TableCell>
+                                                <TableCell align='right' sx={{ padding: '8px', borderRight: '1px solid #f0f0f0' }}>{pago.fecha}</TableCell>
+                                                <TableCell align='right' sx={{ padding: '8px', borderRight: '1px solid #f0f0f0' }}>${parseFloat(pago.importe).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                                                <TableCell align='right' sx={{ padding: '8px', borderRight: '1px solid #f0f0f0' }}>${parseFloat(pago.saldoActual).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                                                <TableCell align='right' sx={{ padding: '8px', borderRight: '1px solid #f0f0f0' }}>${parseFloat(pago.vencido).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                                                <TableCell align='right' sx={{ padding: '8px' }}>{pago.status}</TableCell>
+                                            </TableRow>
+                                        ))}
+                                        <TableRow>
+                                            <TableCell colSpan={4} align="right" sx={{ fontWeight: 'bold', paddingRight: '8px', fontSize: 20 }}>
+                                                {isNaN(montoTotal) || montoTotal === null || montoTotal === undefined ? '' : `Monto Total: $${parseFloat(montoTotal).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                                            </TableCell>
+                                        </TableRow>
+
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                        </Paper>
+
+                    </div>
 
                 </div>
-
-
             </div >
         </>
     );
