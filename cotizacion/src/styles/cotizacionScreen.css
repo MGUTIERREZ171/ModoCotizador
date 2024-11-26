@@ -23,7 +23,7 @@
 .custom-buttons {
     margin-top: 20px; /* Ajusta la separación desde arriba */
     margin-right: 223px;
-    gap: 10px; /* Ajusta el espacio entre botones */
+    gap: 20px; /* Ajusta el espacio entre botones */
 }
 
 .btn-custom {

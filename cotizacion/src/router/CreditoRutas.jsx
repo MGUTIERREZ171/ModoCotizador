@@ -6,7 +6,7 @@ export const CreditoRutas = () => {
     const obtenerCreditos = async (idCredito) => {
         try {
             const token = localStorage.getItem('token'); // Obtener el token
-            const response = await fetch(`http://192.168.0.104:4000/obtener-credito?idCredito=${idCredito}`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/obtener-credito?idCredito=${idCredito}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -16,7 +16,6 @@ export const CreditoRutas = () => {
 
             if (response.ok) {
                 const data = await response.json();
-                console.log('Crédito obtenido:', data);
                 return data;
             } else {
                 const errorData = await response.json();

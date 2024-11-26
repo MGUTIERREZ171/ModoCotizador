@@ -15,7 +15,7 @@ export const LoginScreen = () => {
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch('http://192.168.0.104:4000/login', {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/login `, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -25,9 +25,9 @@ export const LoginScreen = () => {
 
             if (response.ok) {
                 const data = await response.json();
-                localStorage.setItem('token', data.token); // Guardar token en localStorage
-                localStorage.setItem('nombre', data.nombre); // Guardar nombre en localStorage
-                localStorage.setItem('idUsuario', data.id); // Guardar nombre en localStorage
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('nombre', data.nombre);
+                localStorage.setItem('idUsuario', data.id);
                 Swal.fire({
                     position: "center",
                     icon: "success",
@@ -36,10 +36,8 @@ export const LoginScreen = () => {
                     timer: 1000
                 });
 
-                console.log(data.id);
-
                 setTimeout(() => {
-                    navigate('/modocotizador'); // Redirigir a la página de créditos
+                    navigate('/modocotizador');
                 }, 800);
 
             } else {

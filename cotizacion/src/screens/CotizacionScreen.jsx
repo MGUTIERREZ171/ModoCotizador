@@ -183,7 +183,7 @@ export const CotizacionScreen = ({ obtenerCreditos }) => {
                         icon: 'success',
                         title: 'Contraseña correcta',
                         text: 'Ahora puedes editar el campo.',
-                        timer: 2000,
+                        timer: 800,
                         showConfirmButton: false
                     });
                     setIsPasswordCorrect(true);
@@ -194,7 +194,7 @@ export const CotizacionScreen = ({ obtenerCreditos }) => {
                         icon: 'error',
                         title: 'Contraseña incorrecta',
                         text: 'Intente de nuevo.',
-                        timer: 2000,
+                        timer: 1000,
                         showConfirmButton: false
                     });
                 }
@@ -346,7 +346,7 @@ export const CotizacionScreen = ({ obtenerCreditos }) => {
             }
 
 
-            const response = await fetch(`http://192.168.0.104:4000/actualizar-abonos/${idCredito}`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/actualizar-abonos/${idCredito}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -358,8 +358,8 @@ export const CotizacionScreen = ({ obtenerCreditos }) => {
             });
 
             // Depuración en consola
-            console.log('ID Crédito:', idCredito);
-            console.log('Pagos:', pagos);
+            // console.log('ID Crédito:', idCredito);
+            // console.log('Pagos:', pagos);
 
             // Verificar si la respuesta es exitosa
             if (response.ok) {
@@ -446,7 +446,7 @@ export const CotizacionScreen = ({ obtenerCreditos }) => {
                                 borderRadius: '4px',
                                 height: 'fit-content',
                             }}>
-                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <i className="fa-solid fa-magnifying-glass"></i>
                             </button>
 
                             <FormControl>
@@ -626,13 +626,13 @@ export const CotizacionScreen = ({ obtenerCreditos }) => {
                             <i className="fa-solid fa-print"></i>
                             <span> Imprimir</span>
                         </button>
-                        <button type="button" className="btn btn-custom m" onClick={LimpiarInputs} >
+                        <button type="button" className="btn btn-custom-act m " onClick={() => actualizarAbonos(ncredito, pagos)}>
+                            <i className="fa-solid fa-floppy-disk"></i>
+                            <span> Actualizar</span>
+                        </button>
+                        <button type="button" className="btn btn-custom m" onClick={LimpiarInputs} style={{ marginLeft: '11px' }}>
                             <i className="fa-solid fa-rotate-right"></i>
                             <span> Limpiar</span>
-                        </button>
-                        <button type="button" className="btn btn-custom-act m " onClick={() => actualizarAbonos(ncredito, pagos)}>
-                            <i class="fa-solid fa-floppy-disk"></i>
-                            <span> Actualizar</span>
                         </button>
                     </div>
 

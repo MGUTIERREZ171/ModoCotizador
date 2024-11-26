@@ -35,13 +35,13 @@ export const NavBar = () => {
 
     return (
         <nav className="navbar navbar-dark custom-navbar mb px-4">
-            <span className="navbar-brand">
+            <span className="navbar-brand ">
                 <i className="fa-solid fa-user me-2"></i>
                 <span>{localStorage.getItem('nombre')}</span>
             </span>
 
             <button
-                className="btn btn-outline-danger ms-2"
+                className="btn btn-outline-danger ms-2 "
                 onClick={handleLogout}
             >
                 <i className="fas fa-sign-out-alt"></i>
