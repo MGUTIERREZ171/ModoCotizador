@@ -1,17 +1,20 @@
 const express = require('express');
 const { dbConexion } = require('../database/config');
 const { generarJwt } = require('../helpers/jwt');
+const { validarJWT } = require('./middlewares/validarJWT');
 
 const router = express.Router();
 const db = dbConexion();
 
 // Ruta para obtener el crédito
-router.get('/obtener-credito', async (req, res) => {
+router.get('/obtener-credito', validarJWT, async (req, res) => {
     const { idCredito } = req.query;
 
     if (!idCredito) {
         return res.status(400).json({ errors: ['El id de crédito es requerido'] });
     }
+
+    console.log('Usuario autenticado:', req.usuario);
 
     const query = `
         SELECT 
@@ -33,6 +36,9 @@ router.get('/obtener-credito', async (req, res) => {
     `;
 
     try {
+        // Inicializa el arreglo de errores
+        const errores = [];
+
         const [results] = await db.query(query, [idCredito]);
 
         if (results.length === 0) {
@@ -41,26 +47,26 @@ router.get('/obtener-credito', async (req, res) => {
 
         const credito = results[0];
         const fechaPrestamo = new Date(credito.fechaPrestamo).toISOString().split('T')[0];
-        // const fechaActual = new Date().toISOString().split('T')[0];
+        const fechaActual = new Date().toISOString().split('T')[0];
 
-        // // Validaciones
-        // if (fechaPrestamo !== fechaActual) {
-        //     errores.push('Este crédito no es del día de hoy');
-        // }
+        if (fechaPrestamo !== fechaActual) {
+            errores.push('Este crédito no es del día de hoy');
+        }
 
-        // if (credito.saldo <= 0) {
-        //     errores.push('El saldo del crédito es igual a 0');
-        // }
+        if (credito.saldo <= 0) {
+            errores.push('El saldo del crédito es igual a 0');
+        }
 
-        // if (credito.movimientos > 0) {
-        //     errores.push('El crédito ya tiene movimientos registrados');
-        // }
+        if (credito.movimientos > 0) {
+            errores.push('El crédito ya tiene movimientos registrados');
+        }
 
-        // // Si hay errores, devolverlos
-        // if (errores.length > 0) {
-        //     return res.status(400).json({ errors: errores });
-        // }
+        // Si hay errores, devolverlos
+        if (errores.length > 0) {
+            return res.status(400).json({ errors: errores });
+        }
 
+        // Si no hay errores, enviar los datos del crédito
         return res.status(200).json({
             idCredito: credito.idCredito,
             idCliente: credito.idCliente,
@@ -69,7 +75,7 @@ router.get('/obtener-credito', async (req, res) => {
             meses: credito.meses,
             interes: credito.interes,
             fechaPrestamo: fechaPrestamo,
-            saldo: credito.saldo
+            saldo: credito.saldo,
         });
     } catch (err) {
         console.error('Error al obtener el crédito:', err);
@@ -114,7 +120,7 @@ router.post('/login', async (req, res) => {
     }
 });
 
-router.put('/actualizar-abonos/:idCredito', async (req, res) => {
+router.put('/actualizar-abonos/:idCredito', validarJWT, async (req, res) => {
     const { idCredito } = req.params;
     const { pagos, idUsuario } = req.body;
 
@@ -135,6 +141,7 @@ router.put('/actualizar-abonos/:idCredito', async (req, res) => {
                 num_pago: pago.npago,
                 cantidad: parseFloat(pago.importe),
                 fecha_programada: `${anio}-${mes}-${dia}`,
+                abono: 0.00
             };
         });
 
