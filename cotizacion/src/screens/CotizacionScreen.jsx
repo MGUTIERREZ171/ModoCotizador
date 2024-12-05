@@ -69,6 +69,8 @@ export const CotizacionScreen = ({ obtenerCreditos }) => {
         return fechaFinal;
     };
 
+    const redondearDocena = (cantidad) => Math.ceil(cantidad / 10) * 10;
+
     const calcularPagos = () => {
         const pagosCalculados = [];
         const montoAutorizado = Math.round(parseFloat(cantidadAutorizada));
@@ -81,25 +83,36 @@ export const CotizacionScreen = ({ obtenerCreditos }) => {
 
         const montoTotal = montoAutorizado + (montoAutorizado * (meses * (interesValor / 100)));
         setMontoTotal(montoTotal);
-        const pagoQuincenal = montoTotal / (meses * 2);
+
+        const pagosTotales = meses * 2; // Número total de pagos quincenales
+        const pagoQuincenalBruto = montoTotal / pagosTotales; // Pago base antes del redondeo
+        const pagoQuincenal = redondearDocena(pagoQuincenalBruto); // Pago redondeado
+        const montoPagadoParcial = pagoQuincenal * (pagosTotales - 1); // Suma de todos los pagos excepto el último
+        const ultimoPago = montoTotal - montoPagadoParcial; // Ajuste para el último pago
 
         let fechaPago = ajustarFechaPago(dayjs(fechaPrestamo));
         setFechaPrimerPago(fechaPago);
 
-        for (let i = 1; i <= meses * 2; i++) {
+        for (let i = 1; i <= pagosTotales; i++) {
             const fechaPagoActual = fechaPago.format('DD/MM/YYYY');
+            const importePago = i === pagosTotales ? ultimoPago : pagoQuincenal; // Ajuste para el último pago
+
             pagosCalculados.push({
                 npago: i,
                 fecha: fechaPagoActual,
-                importe: pagoQuincenal.toFixed(2),
-                saldoActual: pagoQuincenal.toFixed(2),
+                importe: importePago.toFixed(2),
+                saldoActual: importePago.toFixed(2),
                 vencido: 0.0,
-                status: 'Pendiente'
+                status: 'Pendiente',
             });
+
+            // Ajustar la fecha al día 1 o 16 del siguiente periodo
             fechaPago = fechaPago.date() === 1 ? fechaPago.date(16) : fechaPago.add(1, 'month').date(1);
         }
+
         setPagos(pagosCalculados);
     };
+
 
     const onSubmit = (event) => {
         event.preventDefault();
@@ -310,6 +323,23 @@ export const CotizacionScreen = ({ obtenerCreditos }) => {
 
 
     const actualizarAbonos = async (idCredito, pagos) => {
+
+        const token = localStorage.getItem('token'); // Obtener el token
+
+        // Verificar si el token existe, si no, redirigir al login
+        if (!token) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Se agoto el tiempo de tu sesión',
+                text: 'Vuelve a inicar sesión',
+                showConfirmButton: true
+            });
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 1500);
+            return null;
+        }
+
         const idUsuario = localStorage.getItem('idUsuario'); // Obtener el idUsuario del localStorage
 
         if (!idUsuario) {
@@ -329,6 +359,7 @@ export const CotizacionScreen = ({ obtenerCreditos }) => {
         }
 
         try {
+
             // Mostrar alerta de confirmación
             const result = await Swal.fire({
                 title: "¿Estás seguro de actualizar los abonos para este credito?",
@@ -350,6 +381,7 @@ export const CotizacionScreen = ({ obtenerCreditos }) => {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
+                    'x-token': token,
                 },
                 body: JSON.stringify({
                     pagos,
@@ -380,8 +412,6 @@ export const CotizacionScreen = ({ obtenerCreditos }) => {
             Swal.fire('Error', 'Error de conexión con el servidor.', 'error');
         }
     };
-
-
 
     return (
         <>
@@ -429,7 +459,7 @@ export const CotizacionScreen = ({ obtenerCreditos }) => {
                                     inputRef={ncreditoRef}
                                     error={errors.ncredito}
                                     fullWidth
-                                // disabled={isReadonly}
+                                    disabled={isReadonly}
                                 />
                                 {errors.ncredito && <FormHelperText sx={{ color: 'red' }}>Campo Obligatorio</FormHelperText>}
                             </FormControl>
