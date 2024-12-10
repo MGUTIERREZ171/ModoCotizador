@@ -1,7 +1,7 @@
 const express = require('express');
 const { dbConexion } = require('../database/config');
 const { generarJwt } = require('../helpers/jwt');
-const { validarJWT } = require('./middlewares/validarJWT');
+const { validarJWT } = require('../middleware/validarJwt');
 
 const router = express.Router();
 const db = dbConexion();
@@ -49,9 +49,9 @@ router.get('/obtener-credito', validarJWT, async (req, res) => {
         const fechaPrestamo = new Date(credito.fechaPrestamo).toISOString().split('T')[0];
         const fechaActual = new Date().toISOString().split('T')[0];
 
-        if (fechaPrestamo !== fechaActual) {
-            errores.push('Este crédito no es del día de hoy');
-        }
+        // if (fechaPrestamo !== fechaActual) {
+        //     errores.push('Este crédito no es del día de hoy');
+        // }
 
         if (credito.saldo <= 0) {
             errores.push('El saldo del crédito es igual a 0');
@@ -122,11 +122,11 @@ router.post('/login', async (req, res) => {
 
 router.put('/actualizar-abonos/:idCredito', validarJWT, async (req, res) => {
     const { idCredito } = req.params;
-    const { pagos, idUsuario } = req.body;
+    const { pagos, idUsuario, interes, cantidadInteres, fechaPrimerPago, fechaFinalizacion, fechaPrestamo, meses } = req.body;
 
     // Validación de datos requeridos
-    if (!idCredito || !pagos || !idUsuario) {
-        return res.status(400).json({ message: 'Faltan datos necesarios' });
+    if (!idCredito || !pagos || !idUsuario || !interes || !cantidadInteres || !fechaPrimerPago || !fechaFinalizacion || !fechaPrestamo || !meses) {
+        return res.status(400).json({ message: 'Faltan datos necesarios para actualizar los abonos' });
     }
 
     if (!Array.isArray(pagos) || pagos.length === 0) {
@@ -136,7 +136,7 @@ router.put('/actualizar-abonos/:idCredito', validarJWT, async (req, res) => {
     try {
         // Mapear y transformar los datos al formato esperado por la base de datos
         const valoresTransformados = pagos.map(pago => {
-            const [dia, mes, anio] = pago.fecha.split('/');
+            const [dia, mes, anio] = pago.fecha.split('/'); // Suponiendo que las fechas vienen en formato dd/MM/yyyy
             return {
                 num_pago: pago.npago,
                 cantidad: parseFloat(pago.importe),
@@ -145,18 +145,17 @@ router.put('/actualizar-abonos/:idCredito', validarJWT, async (req, res) => {
             };
         });
 
-
+        // 1. Eliminar abonos programados existentes
         const deleteQuery = 'DELETE FROM abonos_programados WHERE idCredito = ?';
         await db.query(deleteQuery, [idCredito]);
 
-        // 2. Insertar los nuevos pagos
+        // 2. Insertar nuevos abonos programados
         const insertQuery = `
             INSERT INTO abonos_programados 
             (idCredito, num_pago, cantidad, abono, fecha_programada, idUsuario) 
             VALUES ?
         `;
 
-        // Construir el array de valores para la inserción
         const values = valoresTransformados.map(pago => [
             idCredito,
             pago.num_pago,
@@ -166,16 +165,45 @@ router.put('/actualizar-abonos/:idCredito', validarJWT, async (req, res) => {
             idUsuario,
         ]);
 
-        // Ejecutar la inserción
         if (values.length > 0) {
             await db.query(insertQuery, [values]);
         }
+
+        // 3. Actualizar los campos en la tabla creditos
+        const updateQuery = `
+            UPDATE creditos 
+            SET 
+                interes = ?, 
+                cantidad_interes = ?, 
+                fecha_ini = ?, 
+                fecha_fin = ?, 
+                fecha_prestamo_real = ?,
+                meses = ?
+            WHERE idCredito = ?
+        `;
+
+        // Las fechas deben estar en formato YYYY-MM-DD
+        const updateValues = [
+            interes,
+            cantidadInteres,
+            fechaPrimerPago, // fecha_ini
+            fechaFinalizacion, // fecha_fin
+            fechaPrestamo, // fecha_prestamo_real
+            meses,
+            idCredito
+        ];
+
+        await db.query(updateQuery, updateValues);
 
         return res.status(200).json({ message: 'Abonos actualizados correctamente' });
     } catch (error) {
         console.error('Error al actualizar los abonos:', error);
         return res.status(500).json({ message: 'Error al actualizar los abonos' });
     }
+});
+
+router.get('/validate-token', validarJWT, (req, res) => {
+    res.json({ valid: true });
 });
 
 
