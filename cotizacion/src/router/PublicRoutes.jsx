@@ -1,9 +1,19 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
+import { validarToken } from '../auth/validarToken';
 
 export const PublicRoutes = () => {
-    const token = localStorage.getItem('token'); // Verifica si hay un token en localStorage
+    const [isValid, setIsValid] = useState(null);
 
-    // Si hay token, redirige a la ruta principal protegida
-    return token ? <Navigate to="/modocotizador" /> : <Outlet />;
+    useEffect(() => {
+        const validateToken = async () => {
+            const valid = await validarToken();
+            setIsValid(valid);
+        };
+        validateToken();
+    }, []);
+
+    if (isValid === null) return <p>Cargando...</p>;
+
+    return isValid ? <Navigate to="/modocotizador" /> : <Outlet />;
 };

@@ -41,10 +41,21 @@ export const CreditoRutas = () => {
                         html: ` ${errorData.errors.map((error) => `<li>${error}</li>`).join('')}`,
                         confirmButtonText: 'Entendido',
                     });
+                } else if (response.status === 401) {
+                    // Si el token es inválido o expiró
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Se agotó el tiempo de tu sesión',
+                        text: 'Vuelve a iniciar sesión',
+                        showConfirmButton: true,
+                    });
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 1500);
                 } else {
-                    Swal.fire('Error', 'Ocurrió un problema con la solicitud.', 'error');
+                    const errorData = await response.json();
+                    Swal.fire('Error', errorData.message || 'Error al actualizar los abonos.', 'error');
                 }
-                return null;
             }
         } catch (error) {
             console.error('Error al realizar la solicitud:', error);

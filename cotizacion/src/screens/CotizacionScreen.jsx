@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import '../styles/cotizacionScreen.css'
 import Swal from 'sweetalert2';
 import Paper from '@mui/material/Paper';
@@ -11,7 +11,7 @@ import TableRow from '@mui/material/TableRow';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { FormControl, FormHelperText, InputLabel, MenuItem, Select, TextField } from '@mui/material';
+import { boxClasses, FormControl, FormHelperText, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import dayjs from 'dayjs';
 import { jsPDF } from "jspdf";
 import autoTable from 'jspdf-autotable'
@@ -25,7 +25,7 @@ export const CotizacionScreen = ({ obtenerCreditos }) => {
     const [cantidadAutorizada, setCantidadAutorizada] = useState('');
     const [fechaPrestamo, setFechaPrestamo] = useState(null);
     const [meses, setMeses] = useState('');
-    const [interes, setInteres] = useState(10);
+    const [interes, setInteres] = useState('');
     const [isReadonly, setIsReadonly] = useState(false);
     const [isInteresEditable, setIsInteresEditable] = useState(false);
     const [isPasswordCorrect, setIsPasswordCorrect] = useState(false);
@@ -34,6 +34,7 @@ export const CotizacionScreen = ({ obtenerCreditos }) => {
     const [pagos, setPagos] = useState([]);
     const [montoTotal, setMontoTotal] = useState(0);
     const [ncredito, setNcredito] = useState('');
+    const [cantidadInteres, setCantidadInteres] = useState(0);
     const [errors, setErrors] = useState({
         ncredito: false,
         cliente: false,
@@ -81,7 +82,10 @@ export const CotizacionScreen = ({ obtenerCreditos }) => {
             return;
         }
 
-        const montoTotal = montoAutorizado + (montoAutorizado * (meses * (interesValor / 100)));
+        const totalInteres = (montoAutorizado * (meses * (interesValor / 100)));
+        setCantidadInteres(totalInteres)
+
+        const montoTotal = montoAutorizado + totalInteres;
         setMontoTotal(montoTotal);
 
         const pagosTotales = meses * 2; // Número total de pagos quincenales
@@ -111,8 +115,8 @@ export const CotizacionScreen = ({ obtenerCreditos }) => {
         }
 
         setPagos(pagosCalculados);
+        console.log(pagosCalculados)
     };
-
 
     const onSubmit = (event) => {
         event.preventDefault();
@@ -156,7 +160,7 @@ export const CotizacionScreen = ({ obtenerCreditos }) => {
         setFechaFinalizacion(null)
         setFechaPrestamo(null)
         setMeses('');
-        setInteres(10)
+        setInteres('')
         setIsInteresEditable(false);
         setFechaPrimerPago(null)
         setPagos([])
@@ -302,6 +306,7 @@ export const CotizacionScreen = ({ obtenerCreditos }) => {
             setFechaPrestamo(fechaValida.isValid() ? fechaValida : null);
             setIsReadonly(true);
 
+
             setErrors((prevErrors) => ({
                 ...prevErrors,
                 ncredito: false,  // Si los datos son correctos, elimina el error del campo ncredito
@@ -320,18 +325,24 @@ export const CotizacionScreen = ({ obtenerCreditos }) => {
             }));
         }
     };
+    // console.log({
+    //     pagos,
+    //     interes,
+    //     fechaPrimerPago,
+    //     fechaPrestamo,
+    //     fechaFinalizacion
+    // });
 
 
     const actualizarAbonos = async (idCredito, pagos) => {
-
         const token = localStorage.getItem('token'); // Obtener el token
 
         // Verificar si el token existe, si no, redirigir al login
         if (!token) {
             Swal.fire({
                 icon: 'error',
-                title: 'Se agoto el tiempo de tu sesión',
-                text: 'Vuelve a inicar sesión',
+                title: 'Se agotó el tiempo de tu sesión',
+                text: 'Vuelve a iniciar sesión',
                 showConfirmButton: true
             });
             setTimeout(() => {
@@ -348,10 +359,9 @@ export const CotizacionScreen = ({ obtenerCreditos }) => {
         }
 
         if (!idCredito) {
-            Swal.fire('Credito no ingresado', 'Aun no has ingresado un numero de credito', 'warning');
+            Swal.fire('Crédito no ingresado', 'Aún no has ingresado un número de crédito', 'warning');
             return;
         }
-
 
         if (!pagos || pagos.length === 0) {
             Swal.fire('Falta tabla de pagos', 'Debe generar la tabla de pagos antes de actualizar.', 'warning');
@@ -359,10 +369,9 @@ export const CotizacionScreen = ({ obtenerCreditos }) => {
         }
 
         try {
-
             // Mostrar alerta de confirmación
             const result = await Swal.fire({
-                title: "¿Estás seguro de actualizar los abonos para este credito?",
+                title: "¿Estás seguro de actualizar los abonos para este crédito?",
                 text: "Esta acción modificará los abonos programados.",
                 icon: "question",
                 showCancelButton: true,
@@ -376,7 +385,6 @@ export const CotizacionScreen = ({ obtenerCreditos }) => {
                 return;
             }
 
-
             const response = await fetch(`${import.meta.env.VITE_API_URL}/actualizar-abonos/${idCredito}`, {
                 method: 'PUT',
                 headers: {
@@ -386,12 +394,25 @@ export const CotizacionScreen = ({ obtenerCreditos }) => {
                 body: JSON.stringify({
                     pagos,
                     idUsuario,
+                    interes,
+                    cantidadInteres,
+                    fechaPrimerPago,
+                    fechaPrestamo,
+                    fechaFinalizacion,
+                    meses,
                 }),
             });
 
-            // Depuración en consola
-            // console.log('ID Crédito:', idCredito);
-            // console.log('Pagos:', pagos);
+            console.log({
+                pagos,
+                idUsuario,
+                interes,
+                cantidadInteres,
+                fechaPrimerPago,
+                fechaPrestamo,
+                fechaFinalizacion,
+                meses,
+            });
 
             // Verificar si la respuesta es exitosa
             if (response.ok) {
@@ -403,6 +424,17 @@ export const CotizacionScreen = ({ obtenerCreditos }) => {
                     showConfirmButton: true,
                 });
                 LimpiarInputs();
+            } else if (response.status === 401) {
+                // Si el token es inválido o expiró
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Se agotó el tiempo de tu sesión',
+                    text: 'Vuelve a iniciar sesión',
+                    showConfirmButton: true,
+                });
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 1500);
             } else {
                 const errorData = await response.json();
                 Swal.fire('Error', errorData.message || 'Error al actualizar los abonos.', 'error');
@@ -412,6 +444,15 @@ export const CotizacionScreen = ({ obtenerCreditos }) => {
             Swal.fire('Error', 'Error de conexión con el servidor.', 'error');
         }
     };
+
+
+    // useEffect(() => {
+    //     if (cliente && cantidadAutorizada && fechaPrestamo && meses && interes) {
+    //         // Aquí puedes llamar a la función `actualizarAbonos` solo cuando los valores estén completos.
+    //         actualizarAbonos(pagos, interes, fechaPrimerPago, fechaPrestamo, fechaFinalizacion);
+    //     }
+    // }, [cliente, cantidadAutorizada, fechaPrestamo, meses, interes, fechaPrimerPago, fechaFinalizacion]); // Asegura que todos los estados estén listos
+
 
     return (
         <>

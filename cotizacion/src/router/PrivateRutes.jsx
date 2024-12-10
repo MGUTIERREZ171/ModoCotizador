@@ -1,9 +1,19 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
+import { validarToken } from '../auth/validarToken';
 
 export const PrivateRoutes = () => {
-    const token = localStorage.getItem('token'); // Verifica si hay un token en localStorage
+    const [isValid, setIsValid] = useState(null);
 
-    // Si no hay token, redirige al login
-    return token ? <Outlet /> : <Navigate to="/" />;
+    useEffect(() => {
+        const validateToken = async () => {
+            const valid = await validarToken();
+            setIsValid(valid);
+        };
+        validateToken();
+    }, []);
+
+    if (isValid === null) return <p>Cargando...</p>; // Muestra un cargando mientras se valida el token
+
+    return isValid ? <Outlet /> : <Navigate to="/" />;
 };
